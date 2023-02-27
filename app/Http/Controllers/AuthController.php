@@ -50,7 +50,7 @@ class AuthController extends Controller
                 [
                     'message' => 'Invalid Creditentials'
                 ],
-                401
+                403
             );
         }
 
@@ -90,4 +90,26 @@ class AuthController extends Controller
         );
     }
 
+    // update user function
+    public function update(){
+        $attrs =$request->validate([
+            'name' => 'required|string',
+        ]);
+
+        $image=$this->saveImage($request->image,'$profiles');   
+
+        auth()->user()->update([
+            'name' => $attrs['name'],
+            'image' => $image,
+        ]);
+
+        return response(
+            [
+                'message' => 'User updated successfully',
+                'user' => auth()->user()
+            ],
+            200
+        );
+
+    }
 }

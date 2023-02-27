@@ -14,7 +14,12 @@ class PostController extends Controller
     {
         // $posts = Post::all();
         return response([
-                'posts' => Post::orderBy('created_at','desc')->with('user:id,name,image')->withCount('comments','likes')->get()
+                'posts' => Post::orderBy('created_at','desc')->with('user:id,name,image')->withCount('comments','likes')
+                ->with('likes',function($like)
+                {
+                    return $like->where('user_id',auth()->user()->id)->select('id','user_id','post_id')->get(); 
+                })
+                ->get()
             ]
         );
     }
@@ -33,9 +38,13 @@ class PostController extends Controller
         $attrs=$request->validate([
             'body' => 'required|string',
         ]);
+
+        $image=$this->saveImage($request->image,'$posts');
+
         $post = Post::create([
             'body' => $attrs['body'],
             'user_id' => auth()->user()->id,
+            'image' => $image,
         ]);
 
 
